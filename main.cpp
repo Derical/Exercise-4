@@ -34,6 +34,13 @@ int main()
 	imshow("close", closeMat);
 	imshow("gray", grayMat);
 
+	//// ------------------------- Exercise 2 -------------------------
+	//Mat srcMat = imread("C:Users\\STAR ZHANG\\Pictures\\5.jpg");
+	//Mat grayMat,binMat;
+	////转换为灰度图
+	//cvtColor(srcMat, grayMat, COLOR_BGR2GRAY);
+	////进行图像二值化
+	//threshold(grayMat, binMat, 85, 255, THRESH_BINARY);
 
 	waitKey(0);
 	return 0;
