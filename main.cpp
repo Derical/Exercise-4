@@ -48,15 +48,18 @@ int main()
 	Cnt = connectedComponentsWithStats(binMat,labelsMat,statsMat,centroidsMat);
 	//绘制矩阵
 	--Cnt;
+	//获取向量长度
+	int height = statsMat.rows;
+	int width  = statsMat.cols;
+	cout << "height is " << height << "\n" << "width is " << width << endl;
+
 	for (int i = 1; i < Cnt + 1; ++i)
 	{
-		Point p1, p2;
-		p1.x = statsMat.at<uchar>(i, 0);
-		p1.y = statsMat.at<uchar>(i, 1);
-		p2.x = statsMat.at<uchar>(i, 2);
-		p2.y = statsMat.at<uchar>(i, 3);
-		cv::rectangle(binMat,p1,p2,Scalar(255,255,255));
-
+		int x = statsMat.at<int>(i, CC_STAT_LEFT);
+		int y = statsMat.at<int>(i, CC_STAT_TOP);
+		int width = statsMat.at<int>(i, CC_STAT_WIDTH);
+		int height = statsMat.at<int>(i, CC_STAT_HEIGHT);
+		cv::rectangle(binMat,Rect(x,y,width,height),Scalar(255,255,255));
 	}
 
 	cout << Cnt << "\n" << statsMat << endl;
