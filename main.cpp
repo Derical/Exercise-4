@@ -1,4 +1,4 @@
-#include <opencv2/opencv.hpp>
+ï»¿#include <opencv2/opencv.hpp>
 #include <iostream>
 using namespace cv;
 using namespace std;
@@ -12,19 +12,19 @@ int main()
 	//Mat srcMat = imread("C:Users\\STAR ZHANG\\Pictures\\5.jpg");
 	//Mat grayMat,elementMat,binMat;
 	//Mat erodeMat, dilateMat, openMat, closeMat;
-	////×ª»»Îª»Ò¶ÈÍ¼
+	////è½¬æ¢ä¸ºç°åº¦å›¾
 	//cvtColor(srcMat, grayMat, COLOR_BGR2GRAY);
-	////½øĞĞÍ¼Ïñ¶şÖµ»¯
+	////è¿›è¡Œå›¾åƒäºŒå€¼åŒ–
 	//threshold(grayMat,binMat,85,255,THRESH_BINARY);
 	//imshow("bin", binMat);
 	//elementMat = getStructuringElement(MORPH_ELLIPSE,Size(structElementSize * 2 + 1, structElementSize * 2 + 1));
-	////¸¯Ê´
+	////è…èš€
 	//erode(binMat,erodeMat,elementMat);
-	////ÅòÕÍ
+	////è†¨èƒ€
 	//dilate(binMat,dilateMat,elementMat);
-	////¿ªÔËËã
+	////å¼€è¿ç®—
 	//morphologyEx(binMat, openMat,MORPH_OPEN,elementMat);
-	////±ÕÔËËã
+	////é—­è¿ç®—
 	//morphologyEx(binMat,closeMat,MORPH_CLOSE,elementMat);
 
 	//imshow("src", srcMat);
@@ -39,16 +39,16 @@ int main()
 	//Mat srcMat = imread("C:Users\\STAR ZHANG\\Pictures\\5.jpg");
 	//Mat grayMat,binMat;
 	//Mat labelsMat, statsMat, centroidsMat;
-	////×ª»»Îª»Ò¶ÈÍ¼
+	////è½¬æ¢ä¸ºç°åº¦å›¾
 	//cvtColor(srcMat, grayMat, COLOR_BGR2GRAY);
-	////½øĞĞÍ¼Ïñ¶şÖµ»¯
+	////è¿›è¡Œå›¾åƒäºŒå€¼åŒ–
 	//threshold(grayMat, binMat, 85, 255, THRESH_BINARY);
-	////Á¬Í¨Óò±ê¼Ç
+	////è¿é€šåŸŸæ ‡è®°
 	//int Cnt = 0;
 	//Cnt = connectedComponentsWithStats(binMat,labelsMat,statsMat,centroidsMat);
-	////»æÖÆ¾ØÕó
+	////ç»˜åˆ¶çŸ©é˜µ
 	//--Cnt;
-	////»ñÈ¡ÏòÁ¿³¤¶È
+	////è·å–å‘é‡é•¿åº¦
 	//int height = statsMat.rows;
 	//int width  = statsMat.cols;
 	//cout << "height is " << height << "\n" << "width is " << width << endl;
@@ -67,27 +67,77 @@ int main()
 
 	// ------------------------- Exercise 3 -------------------------
 
-	Mat srcMat = imread("C:\\Users\\STAR ZHANG\\Pictures\\6.jpg");
-	Mat dstMat, binMat, elementMat,grayMat;
-	//×ª»»Îª»Ò¶ÈÍ¼
-	cvtColor(srcMat, grayMat, COLOR_BGR2GRAY);
-	//¶şÖµ»¯
-	threshold(grayMat, binMat, 0, 255, THRESH_BINARY|THRESH_OTSU);
-	//·´É«
-	binMat = 255 - binMat;
-	imshow("[¶şÖµ»¯ºóµÄÍ¼Ïñ]", binMat);
-	//»ñÈ¡¾í»ıºË
-	elementMat = getStructuringElement(MORPH_RECT,Size(structElementSize * 2 + 1, structElementSize * 2 + 1));
-	//¸¯Ê´
-	//µü´úÎå´Î
-	morphologyEx(binMat,dstMat,MORPH_ERODE,elementMat,Point(-1,-1),5);
-	imshow("[¸¯Ê´ºóµÄÍ¼Ïñ]",dstMat);
+	//Mat srcMat = imread("C:\\Users\\STAR ZHANG\\Pictures\\6.jpg");
+	//Mat dstMat, binMat, elementMat,grayMat;
+	////è½¬æ¢ä¸ºç°åº¦å›¾
+	//cvtColor(srcMat, grayMat, COLOR_BGR2GRAY);
+	////äºŒå€¼åŒ–
+	//threshold(grayMat, binMat, 0, 255, THRESH_BINARY|THRESH_OTSU);
+	////åè‰²
+	//binMat = 255 - binMat;
+	//imshow("[äºŒå€¼åŒ–åçš„å›¾åƒ]", binMat);
+	////è·å–å·ç§¯æ ¸
+	//elementMat = getStructuringElement(MORPH_RECT,Size(structElementSize * 2 + 1, structElementSize * 2 + 1));
+	////è…èš€
+	////è¿­ä»£äº”æ¬¡
+	//morphologyEx(binMat,dstMat,MORPH_ERODE,elementMat,Point(-1,-1),5);
+	//imshow("[è…èš€åçš„å›¾åƒ]",dstMat);
 
-	Mat statsMat, labelsMat, centroidsMat;
-	//Á¬Í¨Óò±ê¼Ç
-	int Cnt = 0;
-	Cnt = connectedComponentsWithStats(dstMat, labelsMat, statsMat, centroidsMat);
-	cout << "¹²ÓĞ" << Cnt - 1 << "¸öº¸µã" << endl;
+	//Mat statsMat, labelsMat, centroidsMat;
+	////è¿é€šåŸŸæ ‡è®°
+	//int Cnt = 0;
+	//Cnt = connectedComponentsWithStats(dstMat, labelsMat, statsMat, centroidsMat);
+	//cout << "å…±æœ‰" << Cnt - 1 << "ä¸ªç„Šç‚¹" << endl;
+
+	// ------------------------- Exercise 4 -------------------------
+
+	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\7.jpg");
+	Mat dst;
+	//è½¬æ¢ä¸ºç°åº¦å›¾
+	Mat gray;
+	cvtColor(src, gray, COLOR_BGR2GRAY);
+	//äºŒå€¼åŒ–
+	Mat bin;
+	threshold(gray, bin, 100, 255, THRESH_OTSU);
+	//åè‰²
+	bin = 255 - bin;
+	imshow("[äºŒå€¼åŒ–åçš„å›¾åƒ]",bin);
+	//è·å–å·ç§¯æ ¸
+	Mat element = getStructuringElement(MORPH_RECT, Size(structElementSize * 2 + 1, structElementSize * 2 + 1));
+	//å¼€è¿ç®—å»é™¤å™ªå£°ç‚¹
+	morphologyEx(bin, dst, MORPH_OPEN, element, Point(-1, -1), 1);
+	imshow("[å¼€è¿ç®—åçš„å›¾åƒ]",dst);
+	Mat labels, stats, centroids;
+	//è¿é€šåŸŸæ ‡è®°
+	int Cnt = connectedComponentsWithStats(dst, labels, stats, centroids);
+	for (int i = 1; i < Cnt; ++i)
+	{
+		int x = stats.at<int>(i, CC_STAT_LEFT);
+		int y = stats.at<int>(i, CC_STAT_TOP);
+		int width = stats.at<int>(i, CC_STAT_WIDTH);
+		int height = stats.at<int>(i, CC_STAT_HEIGHT);
+		cv::rectangle(dst,Rect(x,y,width,height),Scalar(255,255,255));
+	}
+
+	//æ˜¾ç¤ºå®½é«˜
+	//cout << stats << endl;
+	//cout << "\n";
+
+	int j = Cnt;
+	for (int i = 1; i < j; i++)
+	{
+		int width = stats.at<int>(i, CC_STAT_WIDTH);
+		int height = stats.at<int>(i,CC_STAT_HEIGHT);
+		int coeficient = height / width;
+		if (coeficient > 10)
+		{
+			Cnt--;
+		}
+	}
+
+	cout << "The Cnt of the clip is " << Cnt - 1 << endl;
+	imshow("[ç»˜åˆ¶æ¡†]", dst);
+
 	waitKey(0);
 	return 0;
 }
