@@ -3,24 +3,35 @@
 using namespace cv;
 using namespace std;
 
-int structElementSize = 2;
+int kSize = 3;
 
 int main()
 {
 	// ------------------------- Exercise 1 -------------------------
 	// 中值滤波
+	//VideoCapture cap(0);
+	//while (1)
+	//{
+	//	Mat src,dst;
+	//	cap >> src;
+	//	medianBlur(src,dst,7);
+	//	imshow("[原图]",src);
+	//	imshow("[中值滤波后]", dst);
+	//	waitKey(30);
+	//}
+
+	// ------------------------- Exercise 2 -------------------------
+	//均值滤波
 	VideoCapture cap(0);
 	while (1)
 	{
-		Mat src,dst;
+		Mat src, dst;
 		cap >> src;
-		medianBlur(src,dst,7);
-		imshow("[原图]",src);
-		imshow("[中值滤波后]", dst);
+		blur(src,dst,Size(kSize*2+1,kSize*2+1),Point(-1,-1));
+		imshow("[原图]", src);
+		imshow("[均值滤波后]",dst);
 		waitKey(30);
 	}
-
-
 
 	waitKey(0);
 	return 0;
