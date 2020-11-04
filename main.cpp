@@ -30,7 +30,7 @@ int Rotate()
 	float angle = -10.0, scale = 1;
 	//旋转中心为图像中心
 	Point2f center(src.cols*0.5,src.rows*0.5);
-	//获得变换矩阵
+	//获得旋转变换矩阵
 	const Mat affine_matrix = getRotationMatrix2D(center, angle, scale);
 	
 	warpAffine(src, dst, affine_matrix, src.size());
@@ -40,9 +40,34 @@ int Rotate()
 }
 // ------------------------- Exercise 3 -------------------------
 // 仿射变换
+// 根据三组点求仿射变换矩阵
 int Affine_Transformation()
 {
+	Mat dst;
 	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cat.jpg");
+	if (src.empty())
+		return -1;
+	//变换前的三点坐标
+	const Point2f src_pt[] =
+	{
+		Point2f(200,200),
+		Point2f(250,250),
+		Point2f(200,100)
+	};
+	//变换后的三点坐标
+	const Point2f dst_pt[] =
+	{
+		Point2f(300,100),
+		Point2f(300,50),
+		Point2f(200,100)
+	};
+	//计算仿射变换举证
+	const Mat affine_matrix = getAffineTransform(src_pt, dst_pt);
+	//仿射变换
+	warpAffine(src,dst,affine_matrix,src.size());
+	imshow("[原图]",src);
+	imshow("[仿射变换后]", dst);
+	waitKey();
 }
 int main()
 {
@@ -59,6 +84,7 @@ int main()
 	// ------------------------- Exercise 3 -------------------------
 	// 仿射变换
 
+	Affine_Transformation();
 	return 0;
 
 }
