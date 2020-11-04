@@ -69,6 +69,39 @@ int Affine_Transformation()
 	imshow("[仿射变换后]", dst);
 	waitKey();
 }
+// ------------------------- Exercise 4 -------------------------
+// 投影变换
+int Projection_Transformation()
+{
+	Mat dst;
+	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cat.jpg");
+	if (src.empty())
+		return -1;
+	
+	//变换前的四点坐标
+	Point2f pts1[] =
+	{
+		Point2f(150,150),
+		Point2f(150,300),
+		Point2f(350,300),
+		Point2f(350,150),
+	};
+	//变换后的四点坐标
+	Point2f pts2[] =
+	{
+		Point2f(200,150),
+		Point2f(200,300),
+		Point2f(340,270),
+		Point2f(340,180),
+	};
+	//计算透视变换矩阵
+	Mat perspective_matrix = getPerspectiveTransform(pts1,pts2);
+	//透视变换
+	warpPerspective(src,dst,perspective_matrix,src.size());
+	imshow("[原图]",src);
+	imshow("[经投影变换后]",dst);
+	waitKey(0);
+}
 int main()
 {
 	// ------------------------- Exercise 1 -------------------------
@@ -84,7 +117,13 @@ int main()
 	// ------------------------- Exercise 3 -------------------------
 	// 仿射变换
 
-	Affine_Transformation();
+	//Affine_Transformation();
+	
+	// ------------------------- Exercise 4 -------------------------
+	// 投影变换
+
+	Projection_Transformation();
+
 	return 0;
 
 }
