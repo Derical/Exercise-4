@@ -29,7 +29,6 @@ void Exercise2()
 	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\18.jpg");
 	imshow("[原图]", src);
 	Mat mid;
-	Mat dst;
 	Mat gray;
 	cvtColor(src,gray, COLOR_BGR2GRAY);
 	Canny(gray,mid,50,200,3);
@@ -57,13 +56,39 @@ void Exercise2()
 	imshow("[绘制直线后]", src);
 	waitKey();
 }
+// ------------------------- Exercise 3 -------------------------
+void Exercise3()
+{
+	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\18.jpg");
+	imshow("[原图]", src);
+	Mat mid;
+	Mat gray;
+	cvtColor(src, gray, COLOR_BGR2GRAY);
+	Canny(gray, mid, 50, 200, 3);
+	// 进行边缘检测
+	// ----- 选择用line承载直线参数 -----
+	std::vector<cv::Vec4i> lines;
+	HoughLinesP(mid, lines, 1, CV_PI / 180, 15,50,10);
+	//绘制直线
+	for (int i = 0;i < lines.size(); ++i)
+	{
+		Vec4i l = lines[i];
+		cv::line(src, Point(l[0],l[1]), Point(l[2],l[3]), cv::Scalar(0, 255, 255), 1);
+	}
+
+	imshow("[绘制直线后]", src);
+	waitKey(0);
+}
 int main()
 {
 	// ------------------------- Exercise 1 -------------------------
 	//Exercise1();
 
 	// ------------------------- Exercise 2 -------------------------
-	Exercise2();
+	//Exercise2();
+
+	// ------------------------- Exercise 3 -------------------------
+	Exercise3();
 
 	waitKey(0);
 	return 0;
