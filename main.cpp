@@ -1,95 +1,62 @@
 ﻿#include <opencv2/opencv.hpp>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 using namespace cv;
 using namespace std;
 
-// ------------------------- Exercise 1 -------------------------
-void Exercise1()
+void Exercise1( )
 {
-	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cat.jpg");
-	Mat dst;
-	//旋转-40°，缩放尺寸1
-	float angle = -10.0, scale = 1;
-	cv::Point2f center(src.cols / 2.0, src.rows / 2.0);							// 获取中心坐标
-	cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);				// 获得旋转变换矩阵
-	cv::Rect bbox = cv::RotatedRect(center, src.size(), angle).boundingRect();	// 获取外接四边形
-	// 调整仿射矩阵参数
-	rot.at<double>(0, 2) += bbox.width / 2.0 - center.x;
-	rot.at<double>(1, 2) += bbox.height / 2.0 - center.y;
-	// 仿射变换
-	cv::warpAffine(src, dst, rot, bbox.size());
-	imshow("[原图]", src);
-	imshow("[变换后]", dst);
+	cv::Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cv81.png");
+	imshow("[原图]",src);
+	// 转换为单通道灰度图
+	cv::Mat gray;
+	cvtColor(src,gray,COLOR_BGR2GRAY);
+
+	// 二值化
+	cv::Mat tmp;
+	threshold(gray,tmp,100, 255,THRESH_OTSU);
+	imshow("[二值化后的图像]",tmp);
+
+	// 反色
+	tmp = 255 - tmp;
+	imshow("[反色后的图像]", tmp);
+
+	// 利用findContours函数寻找轮廓
+	std::vector<vector<Point>> contours;
+	std::vector<Vec4i> hierarchy;
+	findContours(tmp,contours,hierarchy,RETR_EXTERNAL,CHAIN_APPROX_NONE);
+	cout << contours.size() << endl;
+
+	// 获得最小外接四边形
+	for (int i = 0; i < contours.size(); ++i)
+	{
+		RotatedRect rbox = minAreaRect(contours[i]);
+		int height = rbox.size.height;
+		int width  = rbox.size.width;
+
+		//限制宽长比和区域大小
+		if (height != 0 && width != 0)
+		{
+			float wdrat = (float)width / height;
+			if (wdrat > 0.98 && wdrat < 1.02 && width > 40 && height > 40)
+			{
+				cout << "The width is " << rbox.size.width << endl;
+				cout << "The height is " << rbox.size.height << endl;
+				cout << "The width divided by the height is " << wdrat << endl;
+				drawContours(src,contours,i,Scalar(0,255,255),-1,8);
+			}
+		}
+	}
+	imshow("[效果图]", src);
 	waitKey(0);
 }
-// ------------------------- Exercise 2 -------------------------
-// 霍夫变换
-void Exercise2()
-{
-	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\18.jpg");
-	imshow("[原图]", src);
-	Mat mid;
-	Mat gray;
-	cvtColor(src,gray, COLOR_BGR2GRAY);
-	Canny(gray,mid,50,200,3);
-	// 进行边缘检测
-	// ----- 选择用line承载直线参数 -----
-	std::vector<cv::Vec2f> lines;
-	HoughLines(mid,lines,1,CV_PI/180,100);
-	//绘制直线
-	std::vector<cv::Vec2f>::iterator it = lines.begin();
-	for (; it != lines.end(); ++it)
-	{
-		float rho = (*it)[0], theta = (*it)[1];
-		cv::Point pt1, pt2;
-		double a = cos(theta);
-		double b = sin(theta);
-		double x0 = a * rho;
-		double y0 = b * rho;
-		pt1.x = cv::saturate_cast<int>(x0 + 1000 * (-b));
-		pt1.y = cv::saturate_cast<int>(y0 + 1000 * (a));
-		pt2.x = cv::saturate_cast<int>(x0 - 1000 * (-b));
-		pt2.y = cv::saturate_cast<int>(y0 - 1000 * (a));
-		cv::line(src, pt1, pt2, cv::Scalar(0, 0, 255), 1);
-	}
 
-	imshow("[绘制直线后]", src);
-	waitKey();
-}
-// ------------------------- Exercise 3 -------------------------
-void Exercise3()
-{
-	Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\18.jpg");
-	imshow("[原图]", src);
-	Mat mid;
-	Mat gray;
-	cvtColor(src, gray, COLOR_BGR2GRAY);
-	Canny(gray, mid, 50, 200, 3);
-	// 进行边缘检测
-	// ----- 选择用line承载直线参数 -----
-	std::vector<cv::Vec4i> lines;
-	HoughLinesP(mid, lines, 1, CV_PI / 180, 15,50,10);
-	//绘制直线
-	for (int i = 0;i < lines.size(); ++i)
-	{
-		Vec4i l = lines[i];
-		cv::line(src, Point(l[0],l[1]), Point(l[2],l[3]), cv::Scalar(0, 255, 255), 1);
-	}
 
-	imshow("[绘制直线后]", src);
-	waitKey(0);
-}
 int main()
 {
-	// ------------------------- Exercise 1 -------------------------
-	//Exercise1();
+	// 练习一
+	Exercise1();
 
-	// ------------------------- Exercise 2 -------------------------
-	//Exercise2();
-
-	// ------------------------- Exercise 3 -------------------------
-	Exercise3();
-
-	waitKey(0);
-	return 0;
+	waitKey(0); 
 }
