@@ -1,204 +1,104 @@
 ﻿#include <opencv2/opencv.hpp>
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
+#include <math.h>
 using namespace cv;
 using namespace std;
 
-// ------------------------- Exercise1 -------------------------
-void Exercise1( )
+// 计算输入图片的HOG
+int calcHOG(Mat src,float * hist,int nAngle,int cellSize)
 {
-	cv::Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cv81.png");
-	cv::Mat disMat;
-	src.copyTo(disMat);
-	imshow("[原图]",src);
+	// 计算各个像素的梯度强度和方向
+	// 计算梯度和角度
+	Mat gx, gy;
+	Mat mag, angle;
+	Sobel(src, gx, CV_32F, 1, 0, 1);
+	Sobel(src, gy, CV_32F, 0, 1, 1);
+	// x方向梯度，y方向梯度，梯度，角度，决定输出弧度/角度
+	// 默认是弧度radians，可以选择角度degrees
+	cartToPolar(gx, gy, mag, angle, true);
 
-	// 转换为单通道灰度图
-	cv::Mat gray;
-	cvtColor(src,gray,COLOR_BGR2GRAY);
+	//图像划分为16 * 16的cell
+	int nX = src.cols / cellSize;
+	int nY = src.rows / cellSize;
 
-	// 二值化
-	cv::Mat tmp;
-	threshold(gray,tmp,100, 255,THRESH_OTSU);
-	imshow("[二值化后的图像]",tmp);
+	int binAngle = 360 / nAngle;
 
-	// 反色
-	tmp = 255 - tmp;
-	imshow("[反色后的图像]", tmp);
+	cv::Rect roi;
+	roi.width  = cellSize;
+	roi.height = cellSize;
 
-	// 利用findContours函数寻找轮廓
-	std::vector<vector<Point>> contours;
-	std::vector<Vec4i> hierarchy;
-	findContours(tmp,contours,hierarchy,RETR_EXTERNAL,CHAIN_APPROX_NONE);
-	cout << contours.size() << endl;
-
-	// 获得最小外接四边形
-	for (int i = 0; i < contours.size(); ++i)
-	{
-		RotatedRect rbox = minAreaRect(contours[i]);
-		int height = rbox.size.height;
-		int width  = rbox.size.width;
-
-		//限制宽长比和区域大小
-		if (height != 0 && width != 0)
+	//图像分割为cell，按照cell分别计算直方图
+	for (int i = 0;i < nY;++i)
+		for (int j = 0; j < nX; ++j)
 		{
-			float wdrat = (float)width / height;
-			if (wdrat > 0.98 && wdrat < 1.02 && width > 40 && height > 40)
-			{
-				cout << "The width is " << rbox.size.width << endl;
-				cout << "The height is " << rbox.size.height << endl;
-				cout << "The width divided by the height is " << wdrat << endl;
-				drawContours(disMat,contours,i,Scalar(0,255,255),-1,8);
-			}
+			cv::Mat roiMat, roiMag, roiAgl;
+			roi.x = j * cellSize;
+			roi.y = i * cellSize;
+			//赋值图像
+			roiMat = src(roi);
+			roiMag = mag(roi);
+			roiAgl = angle(roi);
+			//当前cell第一个元素在数组中的位置
+			int head = (i * nX + j) * nAngle;
+
+			for (int n = 0; n < roiMat.rows;++n)
+				for (int m = 0; m < roiMat.cols; ++m)
+				{
+					int pos = (int)(roiAgl.at<float>(n, m) / binAngle);
+					hist[head + pos] += roiMag.at<float>(n, m);
+				}
 		}
-	}
-	imshow("[效果图]", disMat);
-	waitKey(0);
-}
-// ------------------------- Exercise2 -------------------------
-void Exercise2()
-{
-	cv::Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cv82.jpg");
-	imshow("[原图]", src);
-	cv::Mat gray, bin;
-	cv::Mat disMat;
-	src.copyTo(disMat);
 
-	// 转换为灰度图
-	cvtColor(src,gray,COLOR_BGR2GRAY);
-
-	// 转换为二值图
-	threshold(gray,bin,150,255,THRESH_BINARY);
-	imshow("[二值图]",bin);
-
-	// 寻找轮廓
-	std::vector<vector<Point>> contours;
-	std::vector<Vec4i> hierarchy;
-	findContours(bin, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-	cout << "轮廓的个数为 :" << contours.size() << std::endl;
-	// 获得最小外接四边形
-	for (int i = 0; i < contours.size(); ++i)
-	{
-		RotatedRect rbox = minAreaRect(contours[i]);
-		int height = rbox.size.height;
-		int width = rbox.size.width;
-
-		//限制宽长比
-		if (height != 0 && width != 0)
-		{
-			float wdrat = (float)width / height;
-			if (wdrat > 0.9 && wdrat < 1.1)
-			{
-				cout << "The width is " << rbox.size.width << endl;
-				cout << "The height is " << rbox.size.height << endl;
-				cout << "The width divided by the height is " << wdrat << endl;
-
-				//绘制轮廓
-				cv::Point2f vtx[4];
-				rbox.points(vtx);
-				for (int i = 0; i < 4; ++i)
-					cv::line(disMat, vtx[i], vtx[i < 3 ? i + 1 : 0], cv::Scalar(0, 255, 255), 2);
-			}
-		}
-	}
-	imshow("[效果图]",disMat);
-	waitKey(0);
-}
-// ------------------------- Exercise3 -------------------------
-
-void Exercise3()
-{
-	//设置可调整图片大小的窗口来显示原图
-	cv::Mat src = imread("C:\\Users\\STAR ZHANG\\Pictures\\cv83.jpg");
-	//namedWindow("[原图]",WINDOW_NORMAL);
-	//imshow("[原图]",src);
-	cv::Mat disMat;
-	src.copyTo(disMat);
-	
-	/* ---------------------------- 分离RGB三通道 -----------------------------
-	*		在Image Watch中观察发现效果并不好
-	*		换用HSV空间
-	*/
-	//定义vector作为三个通道的容器
-	//std::vector<cv::Mat> channels;
-	//cv::split(src, channels);
-	//cv::Mat Blue = channels.at(0);
-	//cv::Mat Green = channels.at(1);
-	//cv::Mat Red = channels.at(2);
-
-	// ------------------------------------------------------------------------
-
-	// 转换为HSV
-	int iLowH = 156;			
-	int iHighH = 180;
-	int iLowS = 43;
-	int iHighS = 255;
-	int iLowV = 46;
-	int iHighV = 255;
-	cv::Mat hsvMat;
-	vector<Mat> hsvSplit;
-	cvtColor(src,hsvMat,COLOR_BGR2HSV);
-	split(hsvMat, hsvSplit);
-
-	// 直方图均值化，增强图像亮度及对比度
-	equalizeHist(hsvSplit[2], hsvSplit[2]);
-	merge(hsvSplit, hsvMat);
-	
-	// 二值化
-	Mat thresholdedMat;
-	inRange(hsvMat, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), thresholdedMat);
-
-	// 闭运算
-	Mat tmp;
-	Mat kernel = getStructuringElement(MORPH_ELLIPSE,Size(5,5));
-	morphologyEx(thresholdedMat,tmp,MORPH_CLOSE,kernel,Point(-1,-1),16);
-	//namedWindow("tmp",WINDOW_NORMAL);
-	//imshow("tmp", tmp);
-
-
-	// 寻找轮廓
-	std::vector<vector<Point>> contours;
-	std::vector<Vec4i> hierarchy;
-	findContours(tmp, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-	cout << "轮廓的个数为 :" << contours.size() << std::endl;
-
-	// 获得最小外接四边形
-	for (int i = 0; i < contours.size(); ++i)
-	{
-		RotatedRect rbox = minAreaRect(contours[i]);
-		int height = rbox.size.height;
-		int width = rbox.size.width;
-
-		//限制宽长比
-		if (height != 0 && width != 0)
-		{
-			float wdrat = (float)width / height;
-			if (wdrat >= 0.8 && wdrat <= 1.2)
-			{
-				cout << "The width is " << rbox.size.width << endl;
-				cout << "The height is " << rbox.size.height << endl;
-				cout << "The width divided by the height is " << wdrat << endl;
-
-				//绘制轮廓
-				cv::Point2f vtx[4];
-				rbox.points(vtx);
-				for (int i = 0; i < 4; ++i)
-					cv::line(disMat, vtx[i], vtx[i < 3 ? i + 1 : 0], cv::Scalar(0, 255, 255), 4);
-			}
-		}
-	}
-	namedWindow("[效果图]", WINDOW_GUI_NORMAL);
-	imshow("[效果图]",disMat);
-	waitKey(0);
+	return 1;
 }
 
 int main()
 {
-	// 练习一
-	//Exercise1();
-	// 练习二
-	//Exercise2();
-	// 练习三
-	Exercise3();
+	cv::Mat hogTemplate = imread("hogTemplate.jpg",0);
+	cv::Mat Img1 = imread("D:/!Study!/大三/大三上/数字图像处理DIP/Projects/Exercise 4/img1.jpg",0);
+	cv::Mat Img2 = imread("img2.jpg",0);
+
+	imshow("1", hogTemplate);
+	imshow("2", Img1);
+	imshow("3", Img2);
+
+
+	// 角度量化为8
+	int nAngle = 8;
+	// cell尺寸为16 * 16
+	int blockSize = 16;
+	int nX = hogTemplate.cols / blockSize;
+	int nY = hogTemplate.rows / blockSize;
+
+	int bins = nX * nY * nAngle;
+
+	//开辟内存存放直方图
+	float * ref_hist = new float[bins];
+	memset(ref_hist, 0, sizeof(float) * bins);
+	float * pl_hist = new float[bins];
+	memset(pl_hist, 0, sizeof(float) * bins);
+	float * bg_hist = new float[bins];
+	memset(bg_hist, 0, sizeof(float) * bins);
+
+	//计算输入图片的HOG和直方图
+	calcHOG(hogTemplate, ref_hist, nAngle, blockSize);
+	calcHOG(Img1, pl_hist, nAngle, blockSize);
+	calcHOG(Img2, bg_hist, nAngle, blockSize);
+
+	//计算直方图距离
+	float dis1 = sqrt(normL2Sqr(ref_hist,pl_hist,bins));
+	float dis2 = sqrt(normL2Sqr(ref_hist, bg_hist, bins));
+
+	std::cout << "The distance from Template to Img1 is " << dis1 << std::endl;
+	std::cout << "The distance from Template to Img2 is " << dis2 << std::endl;
+
+	(dis1 <= dis2) ? (std::cout << "img1 is similar" << std::endl) : (std::cout << "img2 is similar" << std::endl);
+
+	//程序结束释放内存
+	delete[] ref_hist;
+	delete[] pl_hist;
+	delete[] bg_hist;
+
 	waitKey(0);
+	return 0;
 }
